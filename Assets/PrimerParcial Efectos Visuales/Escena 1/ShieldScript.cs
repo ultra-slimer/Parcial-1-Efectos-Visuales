@@ -35,6 +35,7 @@ public class ShieldScript : MonoBehaviour
             if(Physics.Raycast(ray,out hit, 100,mask.value))
             {
                 shieldGameObject.GetComponent<Renderer>().material.SetVector("_CollisionPoint", hit.point);
+                print("hit");
                 shieldGameObject.GetComponent<Animation>().Play();
             }
         }
