@@ -31,15 +31,20 @@ Material:
         m_Texture: {fileID: 2800000, guid: 0e3af935bef6a9a40ba4f6d88f8cfb40, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _TextureSample0:
+        m_Texture: {fileID: 2800000, guid: 0e3af935bef6a9a40ba4f6d88f8cfb40, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _texcoord:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _AlphaCutoff: 0.5
-    - _DepthDistance: 0.5
+    - _DepthDistance: 0.1
     - _DepthDistance1: 0.1
     - _Distance: 1
+    - _EdgePower: 1
     - _Float0: 0
     - _FlowIntensity: 1
     - _Intensity: 0.15
@@ -48,8 +53,11 @@ Material:
     - _Slider: 0
     - _VoronoidScale: 5
     - _VoronoidScale1: 1
+    - _WaveHeight: 1
+    - _WaveSpeed: 1
+    - _Wavetile: 3.8
     m_Colors:
-    - _Color0: {r: 1, g: 1, b: 1, a: 0.2}
+    - _Color0: {r: 1, g: 1, b: 1, a: 1}
     - _Color1: {r: 1, g: 1, b: 1, a: 0}
     - _Color2: {r: 1, g: 1, b: 1, a: 0.14901961}
     - _Color3: {r: 0, g: 0, b: 0, a: 0}
@@ -59,6 +67,9 @@ Material:
     - _Direction: {r: 0.5, g: 0.5, b: 0, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _Speed: {r: 0, g: 1, b: 0, a: 0}
-    - _Vector0: {r: 0, g: 0, b: 0, a: 0}
+    - _Vector0: {r: 0.2, g: 0.01, b: 0, a: 0}
     - _Vector1: {r: 0, g: 0, b: 0, a: 0}
+    - _WaveDirection: {r: 0, g: 1, b: 0, a: 0}
+    - _WaveStretch: {r: 0.15, g: 0.002, b: 0, a: 0}
+    - _WaveUp: {r: 0, g: 1, b: 0, a: 0}
   m_BuildTextureStacks: []
