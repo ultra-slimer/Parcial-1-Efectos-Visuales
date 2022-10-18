@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Border
   m_EditorClassIdentifier: 
   m_functionInfo: "// Made with Amplify Shader Editor\n// Available at the Unity
-    Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=18935\n0;585;1562;406;1034.161;265.1638;1;True;False\nNode;AmplifyShaderEditor.PosVertexDataNode;2;-479.977,-144.3671;Inherit;False;0;0;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4\nNode;AmplifyShaderEditor.DepthFade;3;-242.6017,-2.990494;Inherit;False;True;False;False;2;1;FLOAT3;0,0,0;False;0;FLOAT;1;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionInput;1;-479.4214,16.3577;Inherit;False;BorderThickness;1;0;False;1;0;FLOAT;0.1;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput;0;0,0;Inherit;False;True;-1;Output;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nWireConnection;3;1;2;0\nWireConnection;3;0;1;0\nWireConnection;0;0;3;0\nASEEND*/\n//CHKSM=68766D79E0F4717483409B81687A03829214B938"
+    Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=18935\n0;569;1562;422;1034.161;265.1638;1;True;False\nNode;AmplifyShaderEditor.PosVertexDataNode;2;-479.977,-144.3671;Inherit;False;0;0;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4\nNode;AmplifyShaderEditor.DepthFade;3;-242.6017,-2.990494;Inherit;False;True;False;False;2;1;FLOAT3;0,0,0;False;0;FLOAT;1;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionInput;1;-479.4214,16.3577;Inherit;False;BorderThickness;1;0;False;1;0;FLOAT;0.1;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput;0;0,0;Inherit;False;True;-1;Output;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nWireConnection;3;1;2;0\nWireConnection;3;0;1;0\nWireConnection;0;0;3;0\nASEEND*/\n//CHKSM=D3F290136D3FA97E0A552B3300A8517F05603EE8"
   m_functionName: 
   m_description: 
   m_additionalIncludes:
