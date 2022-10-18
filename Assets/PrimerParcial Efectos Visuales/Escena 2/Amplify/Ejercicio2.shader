@@ -6,10 +6,9 @@ Shader "Ejercicio/Ejercicio2"
 	{
 		[HideInInspector] _AlphaCutoff("Alpha Cutoff ", Range(0, 1)) = 0.5
 		[HideInInspector] _EmissionColor("Emission Color", Color) = (1,1,1,1)
-		[ASEBegin]_SkyTexture1("SkyTexture", 2D) = "white" {}
-		_SkyTexture2("SkyTexture", 2D) = "white" {}
-		_Color4("Color 1", Color) = (0,0,0,0)
-		[ASEEnd]_Color3("Color 0", Color) = (1,1,1,0)
+		[ASEBegin]_Slider("Slider", Range( 0 , 1)) = 0
+		_SkyTexture1("SkyTexture", 2D) = "white" {}
+		[ASEEnd]_SkyTexture2("SkyTexture", 2D) = "white" {}
 
 		//_TessPhongStrength( "Tess Phong Strength", Range( 0, 1 ) ) = 0.5
 		//_TessValue( "Tess Max Tessellation", Range( 1, 32 ) ) = 16
@@ -200,8 +199,7 @@ Shader "Ejercicio/Ejercicio2"
 			};
 
 			CBUFFER_START(UnityPerMaterial)
-			float4 _Color3;
-			float4 _Color4;
+			float _Slider;
 			#ifdef TESSELLATION_ON
 				float _TessPhongStrength;
 				float _TessValue;
@@ -215,44 +213,7 @@ Shader "Ejercicio/Ejercicio2"
 			sampler2D _SkyTexture2;
 
 
-			inline float noise_randomValue (float2 uv) { return frac(sin(dot(uv, float2(12.9898, 78.233)))*43758.5453); }
-			inline float noise_interpolate (float a, float b, float t) { return (1.0-t)*a + (t*b); }
-			inline float valueNoise (float2 uv)
-			{
-				float2 i = floor(uv);
-				float2 f = frac( uv );
-				f = f* f * (3.0 - 2.0 * f);
-				uv = abs( frac(uv) - 0.5);
-				float2 c0 = i + float2( 0.0, 0.0 );
-				float2 c1 = i + float2( 1.0, 0.0 );
-				float2 c2 = i + float2( 0.0, 1.0 );
-				float2 c3 = i + float2( 1.0, 1.0 );
-				float r0 = noise_randomValue( c0 );
-				float r1 = noise_randomValue( c1 );
-				float r2 = noise_randomValue( c2 );
-				float r3 = noise_randomValue( c3 );
-				float bottomOfGrid = noise_interpolate( r0, r1, f.x );
-				float topOfGrid = noise_interpolate( r2, r3, f.x );
-				float t = noise_interpolate( bottomOfGrid, topOfGrid, f.y );
-				return t;
-			}
-			
-			float SimpleNoise(float2 UV)
-			{
-				float t = 0.0;
-				float freq = pow( 2.0, float( 0 ) );
-				float amp = pow( 0.5, float( 3 - 0 ) );
-				t += valueNoise( UV/freq )*amp;
-				freq = pow(2.0, float(1));
-				amp = pow(0.5, float(3-1));
-				t += valueNoise( UV/freq )*amp;
-				freq = pow(2.0, float(2));
-				amp = pow(0.5, float(3-2));
-				t += valueNoise( UV/freq )*amp;
-				return t;
-			}
-			
-			
+						
 			VertexOutput VertexFunction ( VertexInput v  )
 			{
 				VertexOutput o = (VertexOutput)0;
@@ -393,22 +354,22 @@ Shader "Ejercicio/Ejercicio2"
 						ShadowCoords = TransformWorldToShadowCoord( WorldPosition );
 					#endif
 				#endif
-				float2 texCoord2_g2 = IN.ase_texcoord3.xy * float2( 1,1 ) + float2( 0,0 );
-				float2 panner3_g2 = ( _TimeParameters.x * float2( 0,0.08 ) + texCoord2_g2);
-				float2 texCoord2_g3 = IN.ase_texcoord3.xy * tex2D( _SkyTexture1, panner3_g2 ).rg + float2( 0,0 );
-				float2 panner3_g3 = ( _TimeParameters.x * float2( 0.1,0 ) + texCoord2_g3);
-				float2 texCoord2_g5 = IN.ase_texcoord3.xy * float2( 1,1 ) + float2( 0,0 );
-				float2 panner3_g5 = ( _TimeParameters.x * float2( 0,0.3 ) + texCoord2_g5);
-				float2 texCoord2_g4 = IN.ase_texcoord3.xy * tex2D( _SkyTexture2, panner3_g5 ).rg + float2( 0,0 );
-				float2 panner3_g4 = ( _TimeParameters.x * float2( 0,-0.1 ) + texCoord2_g4);
-				float simpleNoise111 = SimpleNoise( (float2( 0,0 ) + (panner3_g3 - float2( 0,0 )) * (panner3_g4 - float2( 0,0 )) / (float2( 1,1 ) - float2( 0,0 ))) );
-				float4 lerpResult115 = lerp( _Color3 , _Color4 , simpleNoise111);
-				float4 lerpResult126 = lerp( lerpResult115 , float4( 0,0,0,0 ) , float4( 0,0,0,0 ));
+				float2 texCoord2_g9 = IN.ase_texcoord3.xy * float2( 1,1 ) + float2( 0,0 );
+				float2 panner3_g9 = ( _TimeParameters.x * float2( 0,0.08 ) + texCoord2_g9);
+				float smoothstepResult156 = smoothstep( 0.0 , 1.0 , tex2D( _SkyTexture1, panner3_g9 ).g);
+				float2 texCoord2_g10 = IN.ase_texcoord3.xy * float2( 1,1 ) + float2( 0,0 );
+				float2 panner3_g10 = ( _TimeParameters.x * float2( 0,0.3 ) + texCoord2_g10);
+				float smoothstepResult157 = smoothstep( 0.0 , 1.0 , tex2D( _SkyTexture2, panner3_g10 ).r);
+				float lerpResult115 = lerp( smoothstepResult156 , smoothstepResult157 , 0.0);
+				float3 temp_cast_0 = (( lerpResult115 + 0.0 )).xxx;
+				
+				float2 texCoord34 = IN.ase_texcoord3.xy * float2( 1,1 ) + float2( 0,0 );
+				float temp_output_136_0 = saturate( (0.0 + (_Slider - 0.5) * (1.0 - 0.0) / (1.0 - 0.5)) );
 				
 				float3 BakedAlbedo = 0;
 				float3 BakedEmission = 0;
-				float3 Color = lerpResult126.rgb;
-				float Alpha = 1;
+				float3 Color = temp_cast_0;
+				float Alpha = ( saturate( ( step( texCoord34.y , temp_output_136_0 ) + step( ( 1.0 - texCoord34.y ) , temp_output_136_0 ) ) ) * saturate( ( step( texCoord34.x , temp_output_136_0 ) + step( ( 1.0 - texCoord34.x ) , temp_output_136_0 ) ) ) );
 				float AlphaClipThreshold = 0.5;
 				float AlphaClipThresholdShadow = 0.5;
 
@@ -466,7 +427,7 @@ Shader "Ejercicio/Ejercicio2"
 			{
 				float4 vertex : POSITION;
 				float3 ase_normal : NORMAL;
-				
+				float4 ase_texcoord : TEXCOORD0;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
@@ -479,14 +440,13 @@ Shader "Ejercicio/Ejercicio2"
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
 				float4 shadowCoord : TEXCOORD1;
 				#endif
-				
+				float4 ase_texcoord2 : TEXCOORD2;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
 
 			CBUFFER_START(UnityPerMaterial)
-			float4 _Color3;
-			float4 _Color4;
+			float _Slider;
 			#ifdef TESSELLATION_ON
 				float _TessPhongStrength;
 				float _TessValue;
@@ -510,7 +470,10 @@ Shader "Ejercicio/Ejercicio2"
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO( o );
 
+				o.ase_texcoord2.xy = v.ase_texcoord.xy;
 				
+				//setting value to unused interpolator channels and avoid initialization warnings
+				o.ase_texcoord2.zw = 0;
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
 					float3 defaultVertexValue = v.vertex.xyz;
 				#else
@@ -568,7 +531,8 @@ Shader "Ejercicio/Ejercicio2"
 			{
 				float4 vertex : INTERNALTESSPOS;
 				float3 ase_normal : NORMAL;
-				
+				float4 ase_texcoord : TEXCOORD0;
+
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
@@ -585,7 +549,7 @@ Shader "Ejercicio/Ejercicio2"
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
 				o.vertex = v.vertex;
 				o.ase_normal = v.ase_normal;
-				
+				o.ase_texcoord = v.ase_texcoord;
 				return o;
 			}
 
@@ -624,7 +588,7 @@ Shader "Ejercicio/Ejercicio2"
 				VertexInput o = (VertexInput) 0;
 				o.vertex = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
 				o.ase_normal = patch[0].ase_normal * bary.x + patch[1].ase_normal * bary.y + patch[2].ase_normal * bary.z;
-				
+				o.ase_texcoord = patch[0].ase_texcoord * bary.x + patch[1].ase_texcoord * bary.y + patch[2].ase_texcoord * bary.z;
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
 				for (int i = 0; i < 3; ++i)
@@ -660,8 +624,10 @@ Shader "Ejercicio/Ejercicio2"
 					#endif
 				#endif
 
+				float2 texCoord34 = IN.ase_texcoord2.xy * float2( 1,1 ) + float2( 0,0 );
+				float temp_output_136_0 = saturate( (0.0 + (_Slider - 0.5) * (1.0 - 0.0) / (1.0 - 0.5)) );
 				
-				float Alpha = 1;
+				float Alpha = ( saturate( ( step( texCoord34.y , temp_output_136_0 ) + step( ( 1.0 - texCoord34.y ) , temp_output_136_0 ) ) ) * saturate( ( step( texCoord34.x , temp_output_136_0 ) + step( ( 1.0 - texCoord34.x ) , temp_output_136_0 ) ) ) );
 				float AlphaClipThreshold = 0.5;
 				float AlphaClipThresholdShadow = 0.5;
 
@@ -713,7 +679,7 @@ Shader "Ejercicio/Ejercicio2"
 			{
 				float4 vertex : POSITION;
 				float3 ase_normal : NORMAL;
-				
+				float4 ase_texcoord : TEXCOORD0;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
@@ -726,14 +692,13 @@ Shader "Ejercicio/Ejercicio2"
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
 				float4 shadowCoord : TEXCOORD1;
 				#endif
-				
+				float4 ase_texcoord2 : TEXCOORD2;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
 
 			CBUFFER_START(UnityPerMaterial)
-			float4 _Color3;
-			float4 _Color4;
+			float _Slider;
 			#ifdef TESSELLATION_ON
 				float _TessPhongStrength;
 				float _TessValue;
@@ -753,7 +718,10 @@ Shader "Ejercicio/Ejercicio2"
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
+				o.ase_texcoord2.xy = v.ase_texcoord.xy;
 				
+				//setting value to unused interpolator channels and avoid initialization warnings
+				o.ase_texcoord2.zw = 0;
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
 					float3 defaultVertexValue = v.vertex.xyz;
 				#else
@@ -789,7 +757,8 @@ Shader "Ejercicio/Ejercicio2"
 			{
 				float4 vertex : INTERNALTESSPOS;
 				float3 ase_normal : NORMAL;
-				
+				float4 ase_texcoord : TEXCOORD0;
+
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
@@ -806,7 +775,7 @@ Shader "Ejercicio/Ejercicio2"
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
 				o.vertex = v.vertex;
 				o.ase_normal = v.ase_normal;
-				
+				o.ase_texcoord = v.ase_texcoord;
 				return o;
 			}
 
@@ -845,7 +814,7 @@ Shader "Ejercicio/Ejercicio2"
 				VertexInput o = (VertexInput) 0;
 				o.vertex = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
 				o.ase_normal = patch[0].ase_normal * bary.x + patch[1].ase_normal * bary.y + patch[2].ase_normal * bary.z;
-				
+				o.ase_texcoord = patch[0].ase_texcoord * bary.x + patch[1].ase_texcoord * bary.y + patch[2].ase_texcoord * bary.z;
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
 				for (int i = 0; i < 3; ++i)
@@ -881,8 +850,10 @@ Shader "Ejercicio/Ejercicio2"
 					#endif
 				#endif
 
+				float2 texCoord34 = IN.ase_texcoord2.xy * float2( 1,1 ) + float2( 0,0 );
+				float temp_output_136_0 = saturate( (0.0 + (_Slider - 0.5) * (1.0 - 0.0) / (1.0 - 0.5)) );
 				
-				float Alpha = 1;
+				float Alpha = ( saturate( ( step( texCoord34.y , temp_output_136_0 ) + step( ( 1.0 - texCoord34.y ) , temp_output_136_0 ) ) ) * saturate( ( step( texCoord34.x , temp_output_136_0 ) + step( ( 1.0 - texCoord34.x ) , temp_output_136_0 ) ) ) );
 				float AlphaClipThreshold = 0.5;
 
 				#ifdef _ALPHATEST_ON
@@ -906,151 +877,75 @@ Shader "Ejercicio/Ejercicio2"
 }
 /*ASEBEGIN
 Version=18935
-764;352.8;769.6;442.2;991.2173;890.1085;3.690527;False;False
-Node;AmplifyShaderEditor.CommentaryNode;46;-1047.412,-1598.699;Inherit;False;2296.797;725.9116;Animacion On y Off;17;9;45;44;43;42;41;32;40;36;34;39;38;37;33;35;31;5;;1,1,1,1;0;0
-Node;AmplifyShaderEditor.CommentaryNode;14;-5311.776,-1390.178;Inherit;False;3206.809;1674.615;Propiedades;33;13;4;2;3;0;29;94;91;76;68;72;8;62;77;73;7;85;78;71;6;70;88;67;86;18;90;66;83;84;89;10;74;92;;1,1,1,1;0;0
-Node;AmplifyShaderEditor.RangedFloatNode;122;643.36,584.8181;Inherit;False;Property;_DepthDistance1;DepthDistance;5;0;Create;True;0;0;0;False;0;False;0.1;0.5;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.SimpleMultiplyOpNode;92;-3905.717,-756.6699;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;2;False;1;FLOAT;0
-Node;AmplifyShaderEditor.FunctionNode;106;-337.0019,-149.1345;Inherit;True;PanTexture;-1;;4;7e02fcc63ee3db14ca9e27e3b3885ff2;0;2;5;FLOAT2;1.5,1.5;False;4;FLOAT2;0,-0.1;False;1;FLOAT2;0
-Node;AmplifyShaderEditor.NoiseGeneratorNode;10;-3742.693,-988.6194;Inherit;True;Simple;True;False;2;0;FLOAT2;0,0;False;1;FLOAT;0.1;False;1;FLOAT;0
-Node;AmplifyShaderEditor.TextureCoordinatesNode;84;-4838.034,-1002.448;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.VoronoiNode;62;-3211.701,-439.6332;Inherit;True;0;0;1;0;1;False;1;False;False;False;4;0;FLOAT2;0,0;False;1;FLOAT;0;False;2;FLOAT;1;False;3;FLOAT;0;False;3;FLOAT;0;FLOAT2;1;FLOAT2;2
-Node;AmplifyShaderEditor.SimpleMultiplyOpNode;45;986.0897,-1218.327;Inherit;True;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.PannerNode;90;-4123.137,-645.2333;Inherit;True;3;0;FLOAT2;0,0;False;2;FLOAT2;0,0;False;1;FLOAT;1;False;1;FLOAT2;0
-Node;AmplifyShaderEditor.LerpOp;18;-2440.366,-739.5439;Inherit;True;3;0;COLOR;0,0,0,0;False;1;COLOR;0,0,0,0;False;2;FLOAT;0;False;1;COLOR;0
-Node;AmplifyShaderEditor.SimpleTimeNode;86;-4546.834,-685.8437;Inherit;False;1;0;FLOAT;1;False;1;FLOAT;0
-Node;AmplifyShaderEditor.OneMinusNode;44;743.0898,-1268.327;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.SimpleAddOpNode;38;223.0898,-1138.326;Inherit;True;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.PosVertexDataNode;29;-3377.378,-49.9813;Inherit;False;0;0;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.StepOpNode;36;-27.91017,-1527.326;Inherit;False;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.TFHCRemapNode;102;-32.95083,-324.825;Inherit;True;5;0;FLOAT2;0,0;False;1;FLOAT2;0,0;False;2;FLOAT2;1,1;False;3;FLOAT2;0,0;False;4;FLOAT2;1,1;False;1;FLOAT2;0
-Node;AmplifyShaderEditor.SaturateNode;41;541.0897,-1362.326;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.FunctionNode;99;-969.9667,-466.0244;Inherit;False;PanTexture;-1;;2;7e02fcc63ee3db14ca9e27e3b3885ff2;0;2;5;FLOAT2;1,1;False;4;FLOAT2;0,0.08;False;1;FLOAT2;0
-Node;AmplifyShaderEditor.OneMinusNode;40;-179.9102,-1394.326;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.OneMinusNode;31;-697.1797,-1293.653;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.SimpleTimeNode;70;-3458.616,-451.3124;Inherit;False;1;0;FLOAT;1;False;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;71;-3460.616,-332.3126;Inherit;False;Property;_VoronoidScale;VoronoidScale;10;0;Create;True;0;0;0;False;0;False;0;5;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.TFHCRemapNode;9;-492.5433,-1133.05;Inherit;False;5;0;FLOAT;0;False;1;FLOAT;0.5;False;2;FLOAT;1;False;3;FLOAT;0;False;4;FLOAT;1;False;1;FLOAT;0
-Node;AmplifyShaderEditor.DepthFade;120;882.3681,456.6772;Inherit;False;True;False;True;2;1;FLOAT3;0,0,0;False;0;FLOAT;1;False;1;FLOAT;0
-Node;AmplifyShaderEditor.SaturateNode;42;545.0897,-1104.326;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.LerpOp;115;1134.476,-215.6606;Inherit;True;3;0;COLOR;0,0,0,0;False;1;COLOR;0,0,0,0;False;2;FLOAT;0;False;1;COLOR;0
-Node;AmplifyShaderEditor.RangedFloatNode;124;671.131,242.4171;Inherit;False;Property;_VoronoidScale1;VoronoidScale;11;0;Create;True;0;0;0;False;0;False;10;5;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.DepthFade;8;-3137.619,-21.6323;Inherit;False;True;False;True;2;1;FLOAT3;0,0,0;False;0;FLOAT;1;False;1;FLOAT;0
-Node;AmplifyShaderEditor.StepOpNode;66;-2914.665,-284.608;Inherit;False;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;7;-3376.627,106.5087;Inherit;False;Property;_DepthDistance;DepthDistance;4;0;Create;True;0;0;0;False;0;False;0.1;0.5;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.PosVertexDataNode;121;642.6091,428.3282;Inherit;False;0;0;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.RangedFloatNode;83;-4869.442,-851.0427;Inherit;False;Property;_FlowIntensity;FlowIntensity;14;0;Create;True;0;0;0;False;0;False;1;1;0;1;0;1;FLOAT;0
-Node;AmplifyShaderEditor.NoiseGeneratorNode;89;-3744.705,-674.2258;Inherit;True;Simple;True;False;2;0;FLOAT2;0,0;False;1;FLOAT;0.1;False;1;FLOAT;0
-Node;AmplifyShaderEditor.ColorNode;113;804.8577,-641.5032;Inherit;False;Property;_Color3;Color 0;9;0;Create;True;0;0;0;False;0;False;1,1,1,0;0.7830189,0.1580812,0.1580812,1;True;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.FunctionNode;107;-956.4977,-143.9109;Inherit;False;PanTexture;-1;;5;7e02fcc63ee3db14ca9e27e3b3885ff2;0;2;5;FLOAT2;1,1;False;4;FLOAT2;0,0.3;False;1;FLOAT2;0
-Node;AmplifyShaderEditor.VoronoiNode;119;920.046,135.0966;Inherit;True;0;0;1;0;1;False;1;False;False;False;4;0;FLOAT2;0,0;False;1;FLOAT;0;False;2;FLOAT;1;False;3;FLOAT;0;False;3;FLOAT;0;FLOAT2;1;FLOAT2;2
-Node;AmplifyShaderEditor.SamplerNode;6;-5069.351,-1234.159;Inherit;True;Property;_SkyTexture;SkyTexture;1;0;Create;True;0;0;0;False;0;False;-1;0e3af935bef6a9a40ba4f6d88f8cfb40;0e3af935bef6a9a40ba4f6d88f8cfb40;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.PannerNode;13;-4131.264,-1071.566;Inherit;True;3;0;FLOAT2;0,0;False;2;FLOAT2;0,0;False;1;FLOAT;1;False;1;FLOAT2;0
-Node;AmplifyShaderEditor.SamplerNode;105;-725.7659,-154.06;Inherit;True;Property;_SkyTexture2;SkyTexture;3;0;Create;True;0;0;0;False;0;False;-1;0e3af935bef6a9a40ba4f6d88f8cfb40;0e3af935bef6a9a40ba4f6d88f8cfb40;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.SimpleMultiplyOpNode;91;-4331.63,-560.7;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;-1;False;1;FLOAT;0
-Node;AmplifyShaderEditor.ComponentMaskNode;77;-4727.214,-1165.547;Inherit;False;True;True;True;True;1;0;COLOR;0,0,0,0;False;1;COLOR;0
-Node;AmplifyShaderEditor.SimpleTimeNode;123;673.131,123.4174;Inherit;False;1;0;FLOAT;1;False;1;FLOAT;0
-Node;AmplifyShaderEditor.ColorNode;73;-2692.916,-957.1183;Inherit;False;Property;_Color2;Color 2;13;0;Create;True;0;0;0;False;0;False;0,0,0,0;1,1,1,0.1490196;True;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.LerpOp;126;1525.912,2.099132;Inherit;True;3;0;COLOR;0,0,0,0;False;1;COLOR;0,0,0,0;False;2;COLOR;0,0,0,0;False;1;COLOR;0
-Node;AmplifyShaderEditor.ColorNode;67;-3273.429,-1330.713;Inherit;False;Property;_Color0;Color 0;8;0;Create;True;0;0;0;False;0;False;0,0,0,0;0.7830189,0.1580812,0.1580812,1;True;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.TextureCoordinatesNode;34;-525.7708,-1532.3;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.StepOpNode;35;-29.91017,-1371.326;Inherit;False;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.LerpOp;72;-2925.907,-879.7791;Inherit;False;3;0;COLOR;0,0,0,0;False;1;COLOR;0,0,0,0;False;2;FLOAT;0;False;1;COLOR;0
-Node;AmplifyShaderEditor.OneMinusNode;39;-243.9102,-1197.327;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.SimpleAddOpNode;37;232.0898,-1470.326;Inherit;True;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.OneMinusNode;43;743.0898,-1167.326;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.Vector2Node;85;-4521.135,-834.6964;Inherit;False;Property;_Speed;Speed;15;0;Create;True;0;0;0;False;0;False;0,0.2;0,1;0;3;FLOAT2;0;FLOAT;1;FLOAT;2
-Node;AmplifyShaderEditor.RangedFloatNode;76;-4073.458,-815.179;Inherit;False;Property;_ScaleNoise;ScaleNoise;12;0;Create;True;0;0;0;False;0;False;10;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.StepOpNode;33;-28.37596,-1050.522;Inherit;False;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.FunctionNode;101;-324.9104,-472.1268;Inherit;True;PanTexture;-1;;3;7e02fcc63ee3db14ca9e27e3b3885ff2;0;2;5;FLOAT2;1.5,1.5;False;4;FLOAT2;0.1,0;False;1;FLOAT2;0
-Node;AmplifyShaderEditor.StepOpNode;125;1207.095,241.7076;Inherit;False;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.ColorNode;116;801.0867,-449.1551;Inherit;False;Property;_Color4;Color 1;7;0;Create;True;0;0;0;False;0;False;0,0,0,0;0.1498398,0.6509434,0.1781958,0;True;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.StepOpNode;74;-3460.034,-896.0325;Inherit;False;2;0;FLOAT;0;False;1;FLOAT;0.1;False;1;FLOAT;0
-Node;AmplifyShaderEditor.ColorNode;68;-3277.2,-1138.365;Inherit;False;Property;_Color1;Color 1;6;0;Create;True;0;0;0;False;0;False;0,0,0,0;0.1498398,0.6509434,0.1781958,0;True;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.RangedFloatNode;5;-1004.436,-1296.293;Inherit;False;Property;_Slider;Slider;0;0;Create;True;0;0;0;False;0;False;1;0;0;1;0;1;FLOAT;0
-Node;AmplifyShaderEditor.StepOpNode;88;-3460.309,-727.4232;Inherit;False;2;0;FLOAT;0;False;1;FLOAT;0.3;False;1;FLOAT;0
-Node;AmplifyShaderEditor.StepOpNode;32;-25.37596,-1179.306;Inherit;False;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.NoiseGeneratorNode;111;301.9143,-311.3093;Inherit;True;Simple;True;False;2;0;FLOAT2;0,0;False;1;FLOAT;1;False;1;FLOAT;0
-Node;AmplifyShaderEditor.ColorNode;127;1168.62,31.46426;Inherit;False;Property;_Color5;Color 5;16;0;Create;True;0;0;0;False;0;False;0.9056604,0.06322531,0.06322531,0.07843138;0,0,0,0;True;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.SimpleMultiplyOpNode;94;-3231.132,-825.6;Inherit;True;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.SamplerNode;100;-728.9616,-482.3374;Inherit;True;Property;_SkyTexture1;SkyTexture;2;0;Create;True;0;0;0;False;0;False;-1;0e3af935bef6a9a40ba4f6d88f8cfb40;0e3af935bef6a9a40ba4f6d88f8cfb40;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.LerpOp;78;-4524.37,-1003.415;Inherit;False;3;0;COLOR;0,0,0,0;False;1;COLOR;0,0,0,0;False;2;FLOAT;0;False;1;COLOR;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;1;1842.595,-102.947;Float;False;True;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;3;Ejercicio/Ejercicio2;2992e84f91cbeb14eab234972e07ea9d;True;Forward;0;1;Forward;8;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;True;17;d3d9;d3d11;glcore;gles;gles3;metal;vulkan;xbox360;xboxone;xboxseries;ps4;playstation;psp2;n3ds;wiiu;switch;nomrt;0;False;True;1;1;False;-1;0;False;-1;1;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;LightMode=UniversalForward;False;False;0;Hidden/InternalErrorShader;0;0;Standard;22;Surface;0;0;  Blend;0;0;Two Sided;1;0;Cast Shadows;1;0;  Use Shadow Threshold;0;0;Receive Shadows;1;0;GPU Instancing;1;0;LOD CrossFade;0;0;Built-in Fog;0;0;DOTS Instancing;0;0;Meta Pass;0;0;Extra Pre Pass;0;0;Tessellation;0;0;  Phong;0;0;  Strength;0.5,False,-1;0;  Type;0;0;  Tess;16,False,-1;0;  Min;10,False,-1;0;  Max;25,False,-1;0;  Edge Length;16,False,-1;0;  Max Displacement;25,False,-1;0;Vertex Position,InvertActionOnDeselection;1;0;0;5;False;True;True;True;False;False;;False;0
+321.6;412.8;770;370.6;-280.3371;495.2482;2.947109;True;False
+Node;AmplifyShaderEditor.CommentaryNode;46;-361.7964,884.6573;Inherit;False;2188.7;721.7539;Animacion On y Off;15;36;9;5;33;35;34;42;37;45;41;38;136;40;32;39;;0.1657946,0.7830189,0.1433072,1;0;0
+Node;AmplifyShaderEditor.RangedFloatNode;5;-338.6656,1220.184;Inherit;False;Property;_Slider;Slider;0;0;Create;True;0;0;0;False;0;False;0;0;0;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.TextureCoordinatesNode;34;55.16451,961.8546;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.TFHCRemapNode;9;-3.204872,1216.122;Inherit;False;5;0;FLOAT;0;False;1;FLOAT;0.5;False;2;FLOAT;1;False;3;FLOAT;0;False;4;FLOAT;1;False;1;FLOAT;0
+Node;AmplifyShaderEditor.OneMinusNode;39;633.7358,1378.571;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.OneMinusNode;40;455.2513,1039.417;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SaturateNode;136;200.619,1213.666;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.StepOpNode;35;789.4244,1126.791;Inherit;False;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.StepOpNode;36;786.0336,926.2499;Inherit;False;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.StepOpNode;32;786.9539,1255.792;Inherit;False;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.StepOpNode;33;787.9412,1494.58;Inherit;False;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SimpleAddOpNode;37;1082.234,1036.127;Inherit;True;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SimpleAddOpNode;38;1088.739,1351.682;Inherit;True;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SaturateNode;41;1336.065,1050.875;Inherit;True;1;0;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SaturateNode;42;1342.128,1339.826;Inherit;True;1;0;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.TextureCoordinatesNode;175;1123.538,86.95655;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.SimpleAddOpNode;183;1968.153,-25.08381;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SmoothstepOpNode;157;1037.64,-156.7698;Inherit;False;3;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;1;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SamplerNode;100;702.55,-417.5271;Inherit;True;Property;_SkyTexture1;SkyTexture;1;0;Create;True;0;0;0;False;0;False;-1;0e3af935bef6a9a40ba4f6d88f8cfb40;0e3af935bef6a9a40ba4f6d88f8cfb40;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.LerpOp;115;1337.042,-265.8366;Inherit;True;3;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SimpleDivideOpNode;184;1700.715,121.9188;Inherit;False;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.NoiseGeneratorNode;174;1387.025,36.8946;Inherit;True;Simple;True;False;2;0;FLOAT2;0,0;False;1;FLOAT;5;False;1;FLOAT;0
+Node;AmplifyShaderEditor.DepthFade;120;1367.299,320.7227;Inherit;False;True;False;True;2;1;FLOAT3;0,0,0;False;0;FLOAT;1;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SmoothstepOpNode;156;1042.231,-346.2773;Inherit;False;3;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;1;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SimpleMultiplyOpNode;45;1597.424,1170.114;Inherit;True;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SimpleTimeNode;176;933.37,175.5912;Inherit;False;1;0;FLOAT;0.5;False;1;FLOAT;0
+Node;AmplifyShaderEditor.FunctionNode;99;461.5444,-401.2141;Inherit;False;PanTexture;-1;;9;7e02fcc63ee3db14ca9e27e3b3885ff2;0;2;5;FLOAT2;1,1;False;4;FLOAT2;0,0.08;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.RangedFloatNode;122;1161.56,442.6503;Inherit;False;Property;_DepthDistance1;DepthDistance;3;0;Create;True;0;0;0;False;0;False;0.1;0.5;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.SamplerNode;105;698.5693,-187.3244;Inherit;True;Property;_SkyTexture2;SkyTexture;2;0;Create;True;0;0;0;False;0;False;-1;0e3af935bef6a9a40ba4f6d88f8cfb40;0e3af935bef6a9a40ba4f6d88f8cfb40;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.FunctionNode;107;467.8372,-177.1753;Inherit;False;PanTexture;-1;;10;7e02fcc63ee3db14ca9e27e3b3885ff2;0;2;5;FLOAT2;1,1;False;4;FLOAT2;0,0.3;False;1;FLOAT2;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;2;0,0;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;3;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;ShadowCaster;0;2;ShadowCaster;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;True;17;d3d9;d3d11;glcore;gles;gles3;metal;vulkan;xbox360;xboxone;xboxseries;ps4;playstation;psp2;n3ds;wiiu;switch;nomrt;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;False;False;True;False;False;False;False;0;False;-1;False;False;False;False;False;False;False;False;False;True;1;False;-1;True;3;False;-1;False;True;1;LightMode=ShadowCaster;False;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;3;0,0;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;3;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;DepthOnly;0;3;DepthOnly;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;True;17;d3d9;d3d11;glcore;gles;gles3;metal;vulkan;xbox360;xboxone;xboxseries;ps4;playstation;psp2;n3ds;wiiu;switch;nomrt;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;False;False;True;False;False;False;False;0;False;-1;False;False;False;False;False;False;False;False;False;True;1;False;-1;False;False;True;1;LightMode=DepthOnly;False;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;0;-3156.509,-908.0974;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;3;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;ExtraPrePass;0;0;ExtraPrePass;5;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;True;17;d3d9;d3d11;glcore;gles;gles3;metal;vulkan;xbox360;xboxone;xboxseries;ps4;playstation;psp2;n3ds;wiiu;switch;nomrt;0;False;True;1;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;0;False;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;4;0,0;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;3;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;Meta;0;4;Meta;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;True;17;d3d9;d3d11;glcore;gles;gles3;metal;vulkan;xbox360;xboxone;xboxseries;ps4;playstation;psp2;n3ds;wiiu;switch;nomrt;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;2;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=Meta;False;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
-WireConnection;92;0;76;0
-WireConnection;106;5;105;0
-WireConnection;10;0;13;0
-WireConnection;10;1;76;0
-WireConnection;62;1;70;0
-WireConnection;62;2;71;0
-WireConnection;45;0;44;0
-WireConnection;45;1;43;0
-WireConnection;90;0;78;0
-WireConnection;90;2;85;0
-WireConnection;90;1;91;0
-WireConnection;18;0;72;0
-WireConnection;18;1;73;0
-WireConnection;18;2;66;0
-WireConnection;44;0;41;0
-WireConnection;38;0;32;0
-WireConnection;38;1;33;0
-WireConnection;36;0;34;2
-WireConnection;36;1;31;0
-WireConnection;102;0;101;0
-WireConnection;102;4;106;0
-WireConnection;41;0;37;0
-WireConnection;40;0;34;2
-WireConnection;31;0;5;0
-WireConnection;9;0;31;0
-WireConnection;120;1;121;0
-WireConnection;120;0;122;0
-WireConnection;42;0;38;0
-WireConnection;115;0;113;0
-WireConnection;115;1;116;0
-WireConnection;115;2;111;0
-WireConnection;8;1;29;0
-WireConnection;8;0;7;0
-WireConnection;66;0;62;0
-WireConnection;66;1;8;0
-WireConnection;89;0;90;0
-WireConnection;89;1;92;0
-WireConnection;119;1;123;0
-WireConnection;119;2;124;0
-WireConnection;13;0;78;0
-WireConnection;13;2;85;0
-WireConnection;13;1;86;0
-WireConnection;105;1;107;0
-WireConnection;91;0;86;0
-WireConnection;77;0;6;0
-WireConnection;126;0;115;0
-WireConnection;35;0;40;0
-WireConnection;35;1;31;0
-WireConnection;72;0;67;0
-WireConnection;72;1;68;0
-WireConnection;72;2;94;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;0;-3156.509,-908.0974;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;3;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;ExtraPrePass;0;0;ExtraPrePass;5;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;True;17;d3d9;d3d11;glcore;gles;gles3;metal;vulkan;xbox360;xboxone;xboxseries;ps4;playstation;psp2;n3ds;wiiu;switch;nomrt;0;False;True;1;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;0;False;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;3;0,0;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;3;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;DepthOnly;0;3;DepthOnly;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;True;17;d3d9;d3d11;glcore;gles;gles3;metal;vulkan;xbox360;xboxone;xboxseries;ps4;playstation;psp2;n3ds;wiiu;switch;nomrt;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;False;False;True;False;False;False;False;0;False;-1;False;False;False;False;False;False;False;False;False;True;1;False;-1;False;False;True;1;LightMode=DepthOnly;False;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;1;2336.819,32.85195;Float;False;True;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;3;Ejercicio/Ejercicio2;2992e84f91cbeb14eab234972e07ea9d;True;Forward;0;1;Forward;8;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;True;17;d3d9;d3d11;glcore;gles;gles3;metal;vulkan;xbox360;xboxone;xboxseries;ps4;playstation;psp2;n3ds;wiiu;switch;nomrt;0;False;True;1;1;False;-1;0;False;-1;1;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;LightMode=UniversalForward;False;False;0;Hidden/InternalErrorShader;0;0;Standard;22;Surface;0;638016706776378398;  Blend;0;638016654318420067;Two Sided;1;0;Cast Shadows;1;0;  Use Shadow Threshold;0;0;Receive Shadows;1;0;GPU Instancing;1;0;LOD CrossFade;0;0;Built-in Fog;0;0;DOTS Instancing;0;0;Meta Pass;0;0;Extra Pre Pass;0;0;Tessellation;0;0;  Phong;0;0;  Strength;0.5,False,-1;0;  Type;0;0;  Tess;16,False,-1;0;  Min;10,False,-1;0;  Max;25,False,-1;0;  Edge Length;16,False,-1;0;  Max Displacement;25,False,-1;0;Vertex Position,InvertActionOnDeselection;1;0;0;5;False;True;True;True;False;False;;False;0
+WireConnection;9;0;5;0
 WireConnection;39;0;34;1
+WireConnection;40;0;34;2
+WireConnection;136;0;9;0
+WireConnection;35;0;40;0
+WireConnection;35;1;136;0
+WireConnection;36;0;34;2
+WireConnection;36;1;136;0
+WireConnection;32;0;34;1
+WireConnection;32;1;136;0
+WireConnection;33;0;39;0
+WireConnection;33;1;136;0
 WireConnection;37;0;36;0
 WireConnection;37;1;35;0
-WireConnection;43;0;42;0
-WireConnection;33;0;39;0
-WireConnection;33;1;9;0
-WireConnection;101;5;100;0
-WireConnection;125;0;119;0
-WireConnection;125;1;120;0
-WireConnection;74;0;10;0
-WireConnection;88;0;89;0
-WireConnection;32;0;34;1
-WireConnection;32;1;9;0
-WireConnection;111;0;102;0
-WireConnection;94;0;74;0
-WireConnection;94;1;88;0
+WireConnection;38;0;32;0
+WireConnection;38;1;33;0
+WireConnection;41;0;37;0
+WireConnection;42;0;38;0
+WireConnection;175;1;176;0
+WireConnection;183;0;115;0
+WireConnection;157;0;105;1
 WireConnection;100;1;99;0
-WireConnection;78;0;77;0
-WireConnection;78;1;84;0
-WireConnection;78;2;83;0
-WireConnection;1;2;126;0
+WireConnection;115;0;156;0
+WireConnection;115;1;157;0
+WireConnection;184;0;174;0
+WireConnection;184;1;120;0
+WireConnection;174;0;175;0
+WireConnection;120;0;122;0
+WireConnection;156;0;100;2
+WireConnection;45;0;41;0
+WireConnection;45;1;42;0
+WireConnection;105;1;107;0
+WireConnection;1;2;183;0
+WireConnection;1;3;45;0
 ASEEND*/
-//CHKSM=03AFB5CE55D0DABECE525BF0B661B0FEB0F6255C
+//CHKSM=DA0A9C58F426DA5F176447A396C4224A27CA2A1A
