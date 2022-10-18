@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 2138677392}
-  m_IndirectSpecularColor: {r: 0.5637271, g: 0.63434696, b: 0.72542757, a: 1}
+  m_IndirectSpecularColor: {r: 0.5637272, g: 0.634347, b: 0.72542775, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -130,6 +130,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1138266881, guid: 25313f08410d8d34886905fb2180ff90, type: 3}
+      propertyPath: m_Animation
+      value: 
+      objectReference: {fileID: 7400000, guid: 445e9422202cacc4194a7e81b3d71d3b, type: 2}
     - target: {fileID: 8292767038301795583, guid: 25313f08410d8d34886905fb2180ff90, type: 3}
       propertyPath: m_Name
       value: Portal (1)
